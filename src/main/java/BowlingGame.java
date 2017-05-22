@@ -4,13 +4,13 @@ public class BowlingGame {
         //System.out.println(recordsArray);
 
         String[] recordsArray = bowlingCode.split("|");
-        List<Int> extend = new ArrayList<Int>();
+        int[] extend = new int[22];
 
         int scores = 0;
         int len = bowlingCode.length();
         int[] frameScore = new int[10];
 
-        for (int charIndex = 0, framIndex = 0, IndexInFrame = 1; charIndex < len; charIndex++) {
+        for (int charIndex = 0, framIndex = 0, IndexInFrame = 1, extendIndex = 0; charIndex < len; charIndex ++) {
             switch (bowlingCode.charAt(charIndex)) {
                 case '|':
                     charIndex += 1;
@@ -19,15 +19,18 @@ public class BowlingGame {
                     break;
                 case 'X':
                     frameScore[framIndex] = 10;
-                    extend.add(charIndex + 1);
-                    extend.add(charIndex + 2);
+                    extend[extendIndex] = charIndex + 1;
+                    extendIndex += 1;
+                    extend[extendIndex] = charIndex + 2;
+                    extendIndex += 1;
                     charIndex += 1;
                 case '-':
                     charIndex += 1;
                     IndexInFrame += 1;
                 case '/':
                     frameScore[framIndex] = 10;
-                    extend.add(charIndex + 1);
+                    extend[extendIndex] = charIndex + 1;
+                    extendIndex += 1;
                     charIndex += 1;
                 default:
                     if (IndexInFrame == 1) {
@@ -45,7 +48,7 @@ public class BowlingGame {
             scores = scores + frameScore[i];
         }
 
-        for (int i = 0; i < extend.size(); i++) {
+        for (int i = 0; i < 22; i++) {
             if (bowlingCode.charAt(extend[i]) == 'X') {
                 scores = scores + 10; 
             } else if (bowlingCode.charAt(extend[i]) == '-') {
