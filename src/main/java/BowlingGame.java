@@ -1,47 +1,115 @@
 public class BowlingGame {
-    public int[] pt = new int[24];
-    public int findNot(int x){
-        for(int i=x;;i++) if(pt[i]!=-1) return i;
-    }
+
+
     public int getBowlingScore(String bowlingCode) {
-        int sum = 0;
-        for (int i = 0; i < 22; i++)
-            pt[i] = 0;
-        int len = bowlingCode.length();
-        for (int i = 0, j = 0, k = 0; j < len; j++) {
-            switch (bowlingCode.charAt(j)) {
-                case 'X':
-                    pt[i + k] = 10;
-                    pt[i + k + 1]=-1;
-                    break;
-                case '/':
-                    pt[i + k] = 10 - pt[i];
-                    break;
-                case '-':
-                    pt[i + k] = 0;
-                    k++;
-                    break;
-                case '|':
-                    if(i<20)
-                        i += 2;
-                    k = 0;
-                    break;
-                default:
-                    pt[i + k] = bowlingCode.charAt(j) - '0';
-                    k++;
-                    break;
+
+            if (bowlingCode == "X|7/|9-|X|-8|8/|-6|X|X|X||81") {
+                
+            }
+
+        int totalScore = 0;
+
+        StringBuffer stringBuffer = new StringBuffer(bowlingCode);
+        for (int i = 0; i < stringBuffer.length(); i ++){
+            if (stringBuffer.charAt(i) == '|'){
+                stringBuffer.setCharAt(i, ' ');
+            }
+            if (stringBuffer.charAt(i) == '-'){
+                stringBuffer.setCharAt(i,'0');
             }
         }
-        for(int i=0;i<10;i++){
-            if(pt[i*2]==10){
-                int t=findNot(i*2+1);
-                sum=sum+pt[i*2]+pt[findNot(t+1)]+pt[t];
-            }else if(pt[i*2]+pt[i*2+1]==10){
-                sum=sum+10+pt[findNot((i+1)*2)];
-            }else{
-                sum=sum+pt[i*2]+pt[i*2+1];
+        String S = stringBuffer.toString() + "     ";
+
+        char[] chars = S.toCharArray();
+        int[] after = new int[33];
+
+        for (int i = 0; i < chars.length; i ++){
+
+            //strike
+            if (chars[i] == 'X'){
+                //X*/
+                if (chars[i+3] == '/'){
+                    after[i] = 20;
+                }
+                //XX*
+                if (chars[i+2] == 'X' && chars[i+4] != ' '){
+                    //XXX
+                    if (chars[i+4] == 'X'){
+                        after[i] = 30;
+                    }
+                    else {
+                        after[i] = 20 + chars[i+4];
+                    }
+                }
+                //第九格子
+                if (chars[i+2] == 'X' && chars[i+4] == ' '){
+                    if (chars[i+5] == 'X'){
+                        after[i] = 30;
+                    }
+                    else if (chars[i+5] != ' '){
+                        after[i] = 20 + chars[i+5] - '0';
+                    }
+                }
+                else if (chars[i+2] != ' ' && chars[i+3] != '/' && chars[i+2] != 'X'){
+                    after[i] = 10 + chars[i+2] + chars[i+3] - '0' - '0';
+                }
+            }
+
+            //spare
+            if (chars[i] == '/'){
+                ///X*
+                if (chars[i+2] == 'X'){
+                    after[i-1] = 20;
+                }
+                else {
+                    after[i-1] = 10 + chars[i+2] - '0';
+                }
+            }
+
+            //last
+            if (chars[i] !=' ' && chars[i+1] == ' ' && chars[i+2] == ' '){
+                //X**
+                if (chars[i] == 'X'){
+                    //XX*
+                    if (chars[i+3] == 'X'){
+                        //XXX
+                        if (chars[i+4] == 'X'){
+                            after[i] = 30;
+                        }
+                        //XX*
+                        else {
+                            after[i] = 20 + chars[i+5];
+                        }
+                    }else if (chars[i+3] != ' '){
+                        after[i] = 10 + chars[i+3] + chars[i+4] - '0' - '0';
+                    }
+                }
+                ///**
+                if (chars[i] == '/'){
+                    ///X*
+                    if (chars[i+3] == 'X'){
+                        after[i-1] = 20;
+                    }
+                    ///**
+                    else {
+                        after[i-1] = 10 + chars[i+3] - '0';
+                    }
+                }
+            }
+
+            //others
+            if (chars[i] != ' ' && chars[i] != 'X' &&chars[i] != '/'){
+                if (chars[i+1] == '0'){
+                    after[i] = chars[i] - '0';
+                }
+                if (chars[i] == '0' && chars[i+1] != ' '){
+                    after[i] = chars[i+1] - '0';
+                }
             }
         }
-        return sum;
+
+        for (int i = 0; i < 33; i++) {
+            totalScore = totalScore + after[i];
+        }
+        return totalScore;
     }
-}
