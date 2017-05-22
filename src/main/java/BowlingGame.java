@@ -1,10 +1,3 @@
-class Bowling {
-    public static void main(String []args){
-        BowlingGame game = new BowlingGame("X|7/|9-|X|-8|8/|-6|X|X|X||81");
-        System.out.println(game.score());
-    }
-}
-
 class FrameScore {
     public int scoreOne;
     public int scoreTwo;
