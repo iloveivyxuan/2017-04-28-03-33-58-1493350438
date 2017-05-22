@@ -1,115 +1,72 @@
-public class BowlingGame {
+class FrameScore {
+    public int scoreOne;
+    public int scoreTwo;
+    public int addition = 0;
+    public String type = "Default";
 
-
-    public int getBowlingScore(String bowlingCode) {
-
-            if (bowlingCode == "X|7/|9-|X|-8|8/|-6|X|X|X||81") {
-                
-            }
-
-        int totalScore = 0;
-
-        StringBuffer stringBuffer = new StringBuffer(bowlingCode);
-        for (int i = 0; i < stringBuffer.length(); i ++){
-            if (stringBuffer.charAt(i) == '|'){
-                stringBuffer.setCharAt(i, ' ');
-            }
-            if (stringBuffer.charAt(i) == '-'){
-                stringBuffer.setCharAt(i,'0');
-            }
+    public FrameScore(String str) {
+        str = str.replaceAll("-", "0");
+        if(!!(str.contains("X"))) {
+            this.scoreOne = 10;
+            this.scoreTwo = 0;
+            this.type = "Strick";
+        } else if (!!(str.contains("/"))) {
+            String[] scores = str.split("");
+            this.scoreOne = Integer.parseInt(scores[0]);
+            this.scoreTwo = 10 - Integer.parseInt(scores[0]);
+            this.type = "Spare";
+        } else {
+            String[] scores = str.split("");
+            this.scoreOne = Integer.parseInt(scores[0]);
+            this.scoreTwo = Integer.parseInt(scores[1]);
         }
-        String S = stringBuffer.toString() + "     ";
-
-        char[] chars = S.toCharArray();
-        int[] after = new int[33];
-
-        for (int i = 0; i < chars.length; i ++){
-
-            //strike
-            if (chars[i] == 'X'){
-                //X*/
-                if (chars[i+3] == '/'){
-                    after[i] = 20;
-                }
-                //XX*
-                if (chars[i+2] == 'X' && chars[i+4] != ' '){
-                    //XXX
-                    if (chars[i+4] == 'X'){
-                        after[i] = 30;
-                    }
-                    else {
-                        after[i] = 20 + chars[i+4];
-                    }
-                }
-                //第九格子
-                if (chars[i+2] == 'X' && chars[i+4] == ' '){
-                    if (chars[i+5] == 'X'){
-                        after[i] = 30;
-                    }
-                    else if (chars[i+5] != ' '){
-                        after[i] = 20 + chars[i+5] - '0';
-                    }
-                }
-                else if (chars[i+2] != ' ' && chars[i+3] != '/' && chars[i+2] != 'X'){
-                    after[i] = 10 + chars[i+2] + chars[i+3] - '0' - '0';
-                }
-            }
-
-            //spare
-            if (chars[i] == '/'){
-                ///X*
-                if (chars[i+2] == 'X'){
-                    after[i-1] = 20;
-                }
-                else {
-                    after[i-1] = 10 + chars[i+2] - '0';
-                }
-            }
-
-            //last
-            if (chars[i] !=' ' && chars[i+1] == ' ' && chars[i+2] == ' '){
-                //X**
-                if (chars[i] == 'X'){
-                    //XX*
-                    if (chars[i+3] == 'X'){
-                        //XXX
-                        if (chars[i+4] == 'X'){
-                            after[i] = 30;
-                        }
-                        //XX*
-                        else {
-                            after[i] = 20 + chars[i+5];
-                        }
-                    }else if (chars[i+3] != ' '){
-                        after[i] = 10 + chars[i+3] + chars[i+4] - '0' - '0';
-                    }
-                }
-                ///**
-                if (chars[i] == '/'){
-                    ///X*
-                    if (chars[i+3] == 'X'){
-                        after[i-1] = 20;
-                    }
-                    ///**
-                    else {
-                        after[i-1] = 10 + chars[i+3] - '0';
-                    }
-                }
-            }
-
-            //others
-            if (chars[i] != ' ' && chars[i] != 'X' &&chars[i] != '/'){
-                if (chars[i+1] == '0'){
-                    after[i] = chars[i] - '0';
-                }
-                if (chars[i] == '0' && chars[i+1] != ' '){
-                    after[i] = chars[i+1] - '0';
-                }
-            }
-        }
-
-        for (int i = 0; i < 33; i++) {
-            totalScore = totalScore + after[i];
-        }
-        return totalScore;
     }
+
+    public int rawScore() {
+        return this.scoreOne + this.scoreTwo;
+    }
+
+    public int score() {
+        return this.scoreOne + this.scoreTwo + this.addition;
+    }
+}
+
+public class BowlingGame {
+    String[] addition = new String[2];
+    FrameScore[] frameScores = new FrameScore[10];
+    FrameScore[] calcScores = new FrameScore[12];
+
+    public BowlingGame(String scoreString) {
+        String[] scores = scoreString.split("\\|\\|")[0].split("\\|");
+        String[] additionString = scoreString.split("\\|\\|")[1].split("");
+        this.addition[0] = additionString[0] + "00";
+        this.addition[1] = additionString[1] + "00";
+
+        for(int i = 0; i < 10; i += 1) {
+            this.frameScores[i] = new FrameScore(scores[i]);
+            this.calcScores[i] = new FrameScore(scores[i]);
+        }
+        this.calcScores[10] = new FrameScore(Integer.parseInt(this.addition[0]));
+        this.calcScores[11] = new FrameScore(Integer.parseInt(this.addition[1]));
+
+        for(int i = 0; i < 10; i += 1) {
+            FrameScore fScr = this.frameScores[i];
+            if(fScr.type == "Strike") {
+                fScr.addition += this.calcScores[i + 1].rawScore();
+                if(this.calcScores[i + 1].type == "Strike") {
+                    fScr.addition += this.calcScores[i + 2].scoreOne;
+                }
+            } else if(fScr.type == "Spare") {
+                fScr.addition += this.calcScores[i + 1].scoreOne;
+            }
+        }
+    }
+
+    public int score() {
+        int sum = 0;
+        for(int i = 0; i < 10; i += 1) {
+            sum += this.frameScores[i].score();
+        }
+        return sum;
+    }
+}
