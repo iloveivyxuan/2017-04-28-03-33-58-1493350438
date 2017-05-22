@@ -1,47 +1,62 @@
 public class BowlingGame {
-    public int[] pt = new int[24];
-    public int findNot(int x){
-        for(int i=x;;i++) if(pt[i]!=-1) return i;
-    }
-    public int getBowlingScore(String bowlingCode) {
-        int sum = 0;
-        for (int i = 0; i < 22; i++)
-            pt[i] = 0;
+
+    public int getBowlingScore(String bowlingCode) {       
+        //System.out.println(recordsArray);
+
+        String[] recordsArray = bowlingCode.split("|");
+        List<Int> extend = new ArrayList<Int>();
+
+        int scores = 0;
         int len = bowlingCode.length();
-        for (int i = 0, j = 0, k = 0; j < len; j++) {
-            switch (bowlingCode.charAt(j)) {
-                case 'X':
-                    pt[i + k] = 10;
-                    pt[i + k + 1]=-1;
-                    break;
-                case '/':
-                    pt[i + k] = 10 - pt[i];
-                    break;
-                case '-':
-                    pt[i + k] = 0;
-                    k++;
-                    break;
+        int[] frameScore = new int[10];
+
+        for (int charIndex = 0, framIndex = 0, IndexInFrame = 1; charIndex < len; charIndex++) {
+            switch (bowlingCode.charAt(charIndex)) {
                 case '|':
-                    if(i<20)
-                        i += 2;
-                    k = 0;
+                    charIndex += 1;
+                    framIndex += 1;
+                    IndexInFrame = 1;
                     break;
+                case 'X':
+                    frameScore[framIndex] = 10;
+                    extend.add(charIndex + 1);
+                    extend.add(charIndex + 2);
+                    charIndex += 1;
+                case '-':
+                    charIndex += 1;
+                    IndexInFrame += 1;
+                case '/':
+                    frameScore[framIndex] = 10;
+                    extend.add(charIndex + 1);
+                    charIndex += 1;
                 default:
-                    pt[i + k] = bowlingCode.charAt(j) - '0';
-                    k++;
-                    break;
+                    if (IndexInFrame == 1) {
+                        frameScore[framIndex] = bowlingCode.charAt(charIndex) - '0';
+                    } else {
+                        frameScore[framIndex] += bowlingCode.charAt(charIndex) - '0';
+                    }
+                    IndexInFrame += 1;
+                    charIndex += 1;
+
             }
         }
-        for(int i=0;i<10;i++){
-            if(pt[i*2]==10){
-                int t=findNot(i*2+1);
-                sum=sum+pt[i*2]+pt[findNot(t+1)]+pt[t];
-            }else if(pt[i*2]+pt[i*2+1]==10){
-                sum=sum+10+pt[findNot((i+1)*2)];
-            }else{
-                sum=sum+pt[i*2]+pt[i*2+1];
+
+        for (int i = 0; i < 10; i++) {
+            scores = scores + frameScore[i];
+        }
+
+        for (int i = 0; i < extend.size(); i++) {
+            if (bowlingCode.charAt(extend[i]) == 'X') {
+                scores = scores + 10; 
+            } else if (bowlingCode.charAt(extend[i]) == '-') {
+                scores = scores + 0;
+            } else if (bowlingCode.charAt(extend[i]) == '/') {
+                scores = scores + 10 - bowlingCode.charAt(extend[i] - 1);
+            } else {
+                scores = scores + (bowlingCode.charAt(i) - '0');
             }
         }
-        return sum;
+
+        return scores;
     }
 }
