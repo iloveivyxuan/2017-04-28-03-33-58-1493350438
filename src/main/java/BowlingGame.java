@@ -46,8 +46,8 @@ public class BowlingGame {
             this.frameScores[i] = new FrameScore(scores[i]);
             this.calcScores[i] = new FrameScore(scores[i]);
         }
-        this.calcScores[10] = new FrameScore(Integer.parseInt(this.addition[0]));
-        this.calcScores[11] = new FrameScore(Integer.parseInt(this.addition[1]));
+        this.calcScores[10] = new FrameScore(this.addition[0]);
+        this.calcScores[11] = new FrameScore(this.addition[1]);
 
         for(int i = 0; i < 10; i += 1) {
             FrameScore fScr = this.frameScores[i];
